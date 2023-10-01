@@ -1,7 +1,8 @@
 variable "region" {
   description = "AWS region"
-  default     = "us-west-1"
+  default     = "eu-west-2"
 }
+
 
 variable "instance_type" {
   description = "Type of EC2 instance to provision"
@@ -13,3 +14,7 @@ variable "instance_name" {
   default     = "Provisioned by Terraform"
 }
 
+variable "bucket_name" {
+  description = "S3 bucket"
+  default     = "Provisioned by Terraform"
+}
