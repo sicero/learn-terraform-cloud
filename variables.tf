@@ -16,5 +16,5 @@ variable "instance_name" {
 
 variable "bucket_name" {
   description = "S3 bucket"
-  default     = "Provisioned by Terraform"
+  default     = "landing_zone"
 }
