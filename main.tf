@@ -45,7 +45,7 @@ resource "aws_iam_policy" "lambda_policy" {
         Resource = "*",
       },
       {
-        Action   = "lambda:CreaeFunction",
+        Action   = "lambda:CreateFunction",
         Effect   = "Allow",
         Resource = "*",
       },
