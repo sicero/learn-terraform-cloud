@@ -56,7 +56,7 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 
 # Create an S3 bucket
 resource "aws_s3_bucket" "my_bucket" {
-  bucket = "my-unique-bucket-name"
+  bucket = "sicero-landing-zone-1"
   acl    = "private" # You can adjust the access control as needed
 }
 
