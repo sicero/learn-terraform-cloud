@@ -1,6 +1,6 @@
 # Define the provider (AWS in this case)
 provider "aws" {
-  region = "eu-east-2" # Change to your desired AWS region
+  region = "eu-west-2" # Change to your desired AWS region
 }
 
 # Create an IAM role for the Lambda function
