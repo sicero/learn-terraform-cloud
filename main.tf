@@ -24,48 +24,55 @@ resource "aws_lambda_function" "my_lambda" {
   }
 }
 
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "LambdaPolicy"
+  description = "IAM policy for Lambda function"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "lambda:CreateFunction",
+          "lambda:InvokeFunction",
+          "lambda:DeleteFunction",
+          "lambda:GetFunction",
+          "lambda:UpdateFunctionConfiguration",
+        ],
+        Effect   = "Allow",
+        Resource = "*",
+      },
+      {
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+        ],
+        Effect   = "Allow",
+        Resource = "*",
+      },
+    ],
+  })
+}
+
 resource "aws_iam_role" "lambda_role" {
   name = "my-lambda-role"
 
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
+  trust_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
 }
 
-
-# data "aws_ami" "ubuntu" {
-#   most_recent = true
-
-#   filter {
-#     name   = "name"
-#     values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-#   }
-
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-
-#   owners = ["099720109477"] # Canonical
-# }
-
-# resource "aws_instance" "ubuntu" {
-#   ami           = data.aws_ami.ubuntu.id
-#   instance_type = var.instance_type
-
-#   tags = {
-#     Name = var.instance_name
-#   }
-# }
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  policy_arn = aws_iam_policy.lambda_policy.arn
+  role       = aws_iam_role.lambda_role.name
+}
