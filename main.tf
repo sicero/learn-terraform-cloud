@@ -30,27 +30,22 @@ resource "aws_iam_policy" "lambda_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Action   = "logs:CreateLogGroup",
+        Action = [
+          "lambda:CreateFunction",  # Add this permission
+          "lambda:InvokeFunction",   # Include other Lambda permissions as needed
+          "lambda:DeleteFunction",
+          "lambda:GetFunction",
+          "lambda:UpdateFunctionConfiguration",
+        ],
         Effect   = "Allow",
         Resource = "*",
       },
       {
-        Action   = "logs:CreateLogStream",
-        Effect   = "Allow",
-        Resource = "*",
-      },
-      {
-        Action   = "logs:PutLogEvents",
-        Effect   = "Allow",
-        Resource = "*",
-      },
-      {
-        Action   = "lambda:CreateFunction",
-        Effect   = "Allow",
-        Resource = "*",
-      },
-      {
-        Action   = "lambda:DeleteFunction",
+        Action   = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+        ],
         Effect   = "Allow",
         Resource = "*",
       },
