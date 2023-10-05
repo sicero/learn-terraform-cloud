@@ -81,59 +81,48 @@ resource "aws_lambda_function" "my_lambda" {
       key2 = "value2",
     }
   }
-
-  # Define the AWS AppSync GraphQL API
-  resource "aws_appsync_graphql_api" "my_appsync_api" {
-    authentication_type = "API_KEY" # Change as needed (API_KEY, AWS_IAM, OPENID_CONNECT, AMAZON_COGNITO_USER_POOLS)
-    name                = "my-graphql-api"
-  }
-
-  # Create an API Key for the AppSync API (only for API_KEY authentication)
-  resource "aws_appsync_api_key" "my_api_key" {
-    api_id = aws_appsync_graphql_api.my_appsync_api.id
-  }
-
-  # Define a GraphQL schema for the AppSync API (replace with your schema)
-  resource "aws_appsync_datasource" "my_datasource" {
-    api_id          = aws_appsync_graphql_api.my_appsync_api.id
-    name            = "MyDataSource"
-    type            = "AWS_LAMBDA"
-    service_role_arn = aws_iam_role.lambda_role.arn
-    lambda_function_arn = aws_lambda_function.my_lambda.arn
-  }
-
-  resource "aws_appsync_resolver" "my_resolver" {
-    api_id                  = aws_appsync_graphql_api.my_appsync_api.id
-    type_name               = "Query"
-    field_name              = "myQuery"  # Replace with your query name
-    data_source             = aws_appsync_datasource.my_datasource.name
-    request_template        = <<EOF
-      {
-          "version": "2018-05-29",
-          "operation": "Invoke",
-          "payload": {
-              "field": "myQuery"
-          }
-      }
-    EOF
-
-    response_template       = <<EOF
-      $util.toJson($ctx.result)
-    EOF
-  }
-
-
-
-  # Optional: Define the S3 bucket trigger (uncomment if needed)
-  # event_source {
-  #   s3 {
-  #     bucket = aws_s3_bucket.my_bucket.id
-  #     events = ["s3:ObjectCreated:*"]
-  #     filter_prefix = "my-folder/"
-  #   }
-  # }
 }
 
+
+# Define the AWS AppSync GraphQL API
+resource "aws_appsync_graphql_api" "my_appsync_api" {
+  authentication_type = "API_KEY" # Change as needed (API_KEY, AWS_IAM, OPENID_CONNECT, AMAZON_COGNITO_USER_POOLS)
+  name                = "my-graphql-api"
+}
+
+# Create an API Key for the AppSync API (only for API_KEY authentication)
+resource "aws_appsync_api_key" "my_api_key" {
+  api_id = aws_appsync_graphql_api.my_appsync_api.id
+}
+
+# Define a GraphQL schema for the AppSync API (replace with your schema)
+resource "aws_appsync_datasource" "my_datasource" {
+  api_id          = aws_appsync_graphql_api.my_appsync_api.id
+  name            = "MyDataSource"
+  type            = "AWS_LAMBDA"
+  service_role_arn = aws_iam_role.lambda_role.arn
+  lambda_function_arn = aws_lambda_function.my_lambda.arn
+}
+
+resource "aws_appsync_resolver" "my_resolver" {
+  api_id                  = aws_appsync_graphql_api.my_appsync_api.id
+  type_name               = "Query"
+  field_name              = "myQuery"  # Replace with your query name
+  data_source             = aws_appsync_datasource.my_datasource.name
+  request_template        = <<EOF
+    {
+        "version": "2018-05-29",
+        "operation": "Invoke",
+        "payload": {
+            "field": "myQuery"
+        }
+    }
+  EOF
+
+  response_template       = <<EOF
+    $util.toJson($ctx.result)
+  EOF
+}
 
 # Output the GraphQL API endpoint
 output "appsync_api_endpoint" {
