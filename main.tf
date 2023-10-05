@@ -31,8 +31,8 @@ resource "aws_iam_policy" "lambda_policy" {
     Statement = [
       {
         Action = [
-          "lambda:CreateFunction",  # Add this permission
-          "lambda:InvokeFunction",   # Include other Lambda permissions as needed
+          "lambda:CreateFunction",
+          "lambda:InvokeFunction",
           "lambda:DeleteFunction",
           "lambda:GetFunction",
           "lambda:UpdateFunctionConfiguration",
@@ -62,16 +62,32 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 # Create an S3 bucket
 resource "aws_s3_bucket" "my_bucket" {
   bucket = "sicero-landing-zone-1"
-  acl    = "private" # You can adjust the access control as needed
+  acl    = "private"
+}
+
+# Create a DynamoDB table
+resource "aws_dynamodb_table" "my_table" {
+  name           = "MyTable"
+  billing_mode   = "PAY_PER_REQUEST" # Change to your desired billing mode
+  hash_key       = "MyPartitionKey"  # Change to your desired partition key attribute name
+  read_capacity  = 5                  # Adjust read capacity units as needed
+  write_capacity = 5                  # Adjust write capacity units as needed
+
+  attribute {
+    name = "MyPartitionKey"          # Change to your desired partition key attribute name
+    type = "S"                       # Change to the appropriate data type
+  }
+
+  # You can add more attributes as needed
 }
 
 # Create the Lambda function
 resource "aws_lambda_function" "my_lambda" {
-  filename      = "lambda_function.zip" # Path to your Lambda deployment package
+  filename      = "lambda_function.zip"
   function_name = "my-lambda-function"
   role          = aws_iam_role.lambda_role.arn
   handler       = "index.handler"
-  runtime       = "nodejs14.x" # Change to your desired runtime
+  runtime       = "nodejs14.x"
 
   source_code_hash = filebase64sha256("lambda_function.zip")
 
@@ -81,15 +97,6 @@ resource "aws_lambda_function" "my_lambda" {
       key2 = "value2",
     }
   }
-
-  # Optional: Define the S3 bucket trigger (uncomment if needed)
-  # event_source {
-  #   s3 {
-  #     bucket = aws_s3_bucket.my_bucket.id
-  #     events = ["s3:ObjectCreated:*"]
-  #     filter_prefix = "my-folder/"
-  #   }
-  # }
 }
 
 # Output the ARN of the Lambda function for reference
@@ -100,4 +107,9 @@ output "lambda_function_arn" {
 # Output the name of the S3 bucket for reference
 output "s3_bucket_name" {
   value = aws_s3_bucket.my_bucket.id
+}
+
+# Output the name of the DynamoDB table for reference
+output "dynamodb_table_name" {
+  value = aws_dynamodb_table.my_table.name
 }
