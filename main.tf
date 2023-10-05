@@ -103,6 +103,7 @@ resource "aws_iam_policy" "dynamodb_policy" {
 }
 
 resource "aws_iam_policy_attachment" "dynamodb_policy_attachment" {
+  name        = "DynamoDBPolicyAttach"
   policy_arn = aws_iam_policy.dynamodb_policy.arn
   roles      = [aws_iam_role.lambda_role.name]  # Attach to your Lambda role
   # Alternatively, you can use "users" instead of "roles" if attaching to an IAM user.
