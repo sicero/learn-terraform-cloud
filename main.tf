@@ -81,6 +81,36 @@ resource "aws_dynamodb_table" "my_table" {
   # You can add more attributes as needed
 }
 
+resource "aws_iam_policy" "dynamodb_policy" {
+  name        = "DynamoDBPolicy"
+  description = "IAM policy for DynamoDB"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "dynamodb:CreateTable",
+          "dynamodb:DescribeTable",
+          "dynamodb:UpdateTable",
+          "dynamodb:DeleteTable"
+        ],
+        Effect   = "Allow",
+        Resource = "*",
+      },
+    ],
+  })
+}
+
+resource "aws_iam_policy_attachment" "dynamodb_policy_attachment" {
+  name        = "DynamoDBPolicyAttach"
+  policy_arn = aws_iam_policy.dynamodb_policy.arn
+  roles      = [aws_iam_role.lambda_role.name]  # Attach to your Lambda role
+  # Alternatively, you can use "users" instead of "roles" if attaching to an IAM user.
+}
+
+
+
 # Create the Lambda function
 resource "aws_lambda_function" "my_lambda" {
   filename      = "lambda_function.zip"
