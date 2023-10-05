@@ -96,12 +96,17 @@ resource "aws_appsync_api_key" "my_api_key" {
 }
 
 # Define a GraphQL schema for the AppSync API (replace with your schema)
+# Define a GraphQL schema for the AppSync API (replace with your schema)
 resource "aws_appsync_datasource" "my_datasource" {
   api_id          = aws_appsync_graphql_api.my_appsync_api.id
   name            = "MyDataSource"
   type            = "AWS_LAMBDA"
   service_role_arn = aws_iam_role.lambda_role.arn
-  function_arn    = aws_lambda_function.my_lambda.arn # Corrected attribute name
+
+  function {
+    name = "my_lambda_function"  # Replace with your Lambda function name
+    lambda_function_arn = aws_lambda_function.my_lambda.arn
+  }
 }
 
 resource "aws_appsync_resolver" "my_resolver" {
@@ -123,6 +128,7 @@ EOF
   $util.toJson($ctx.result)
 EOF
 }
+
 
 # Output the GraphQL API endpoint
 output "appsync_api_endpoint" {
