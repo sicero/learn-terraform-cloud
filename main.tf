@@ -93,7 +93,8 @@ resource "aws_iam_policy" "dynamodb_policy" {
           "dynamodb:CreateTable",
           "dynamodb:DescribeTable",
           "dynamodb:UpdateTable",
-          "dynamodb:DeleteTable"
+          "dynamodb:DeleteTable",
+          "dynamodb:TagResoucre"
         ],
         Effect   = "Allow",
         Resource = "*",
