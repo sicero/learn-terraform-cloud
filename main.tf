@@ -101,7 +101,7 @@ resource "aws_appsync_datasource" "my_datasource" {
   name            = "MyDataSource"
   type            = "AWS_LAMBDA"
   service_role_arn = aws_iam_role.lambda_role.arn
-  lambda_function_arn = aws_lambda_function.my_lambda.arn
+  function_arn    = aws_lambda_function.my_lambda.arn # Corrected attribute name
 }
 
 resource "aws_appsync_resolver" "my_resolver" {
@@ -110,18 +110,18 @@ resource "aws_appsync_resolver" "my_resolver" {
   field_name              = "myQuery"  # Replace with your query name
   data_source             = aws_appsync_datasource.my_datasource.name
   request_template        = <<EOF
-    {
-        "version": "2018-05-29",
-        "operation": "Invoke",
-        "payload": {
-            "field": "myQuery"
-        }
-    }
-  EOF
+  {
+      "version": "2018-05-29",
+      "operation": "Invoke",
+      "payload": {
+          "field": "myQuery"
+      }
+  }
+EOF
 
   response_template       = <<EOF
-    $util.toJson($ctx.result)
-  EOF
+  $util.toJson($ctx.result)
+EOF
 }
 
 # Output the GraphQL API endpoint
