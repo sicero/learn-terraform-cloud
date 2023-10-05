@@ -1,42 +1,115 @@
 # Define the provider (AWS in this case)
 provider "aws" {
-  region = "us-east-1" # Change to your desired AWS region
+  region = "eu-west-2" # Change to your desired AWS region
 }
 
-# Define the AWS AppSync GraphQL API
-resource "aws_appsync_graphql_api" "my_appsync_api" {
-  authentication_type = "API_KEY" # Change as needed (API_KEY, AWS_IAM, OPENID_CONNECT, AMAZON_COGNITO_USER_POOLS)
-  name                = "my-graphql-api"
+# Create an IAM role for the Lambda function
+resource "aws_iam_role" "lambda_role" {
+  name = "my-lambda-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      }
+    ]
+  })
 }
 
-# Create an API Key for the AppSync API (only for API_KEY authentication)
-resource "aws_appsync_api_key" "my_api_key" {
-  api_id = aws_appsync_graphql_api.my_appsync_api.id
+# Create an IAM policy for the Lambda function
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "LambdaPolicy"
+  description = "IAM policy for Lambda function"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "lambda:CreateFunction",
+          "lambda:InvokeFunction",
+          "lambda:DeleteFunction",
+          "lambda:GetFunction",
+          "lambda:UpdateFunctionConfiguration",
+        ],
+        Effect   = "Allow",
+        Resource = "*",
+      },
+      {
+        Action   = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+        ],
+        Effect   = "Allow",
+        Resource = "*",
+      },
+    ],
+  })
 }
 
-# Define a resolver for the query
-resource "aws_appsync_resolver" "my_resolver" {
-  api_id                  = aws_appsync_graphql_api.my_appsync_api.id
-  type_name               = "Query"
-  field_name              = "myQuery"  # Replace with your query name
-  data_source             = "AWS_LAMBDA"  # Data source type
+# Attach the Lambda policy to the Lambda role
+resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+  policy_arn = aws_iam_policy.lambda_policy.arn
+  role       = aws_iam_role.lambda_role.name
+}
 
-  request_mapping_template = <<EOF
-{
-    "version": "2018-05-29",
-    "operation": "Invoke",
-    "payload": {
-        "field": "myQuery"
+# Create an S3 bucket
+resource "aws_s3_bucket" "my_bucket" {
+  bucket = "sicero-landing-zone-1"
+  acl    = "private"
+}
+
+# Create a DynamoDB table
+resource "aws_dynamodb_table" "my_table" {
+  name           = "MyTable"
+  billing_mode   = "PAY_PER_REQUEST" # Change to your desired billing mode
+  hash_key       = "MyPartitionKey"  # Change to your desired partition key attribute name
+  read_capacity  = 5                  # Adjust read capacity units as needed
+  write_capacity = 5                  # Adjust write capacity units as needed
+
+  attribute {
+    name = "MyPartitionKey"          # Change to your desired partition key attribute name
+    type = "S"                       # Change to the appropriate data type
+  }
+
+  # You can add more attributes as needed
+}
+
+# Create the Lambda function
+resource "aws_lambda_function" "my_lambda" {
+  filename      = "lambda_function.zip"
+  function_name = "my-lambda-function"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "index.handler"
+  runtime       = "nodejs14.x"
+
+  source_code_hash = filebase64sha256("lambda_function.zip")
+
+  environment {
+    variables = {
+      key1 = "value1",
+      key2 = "value2",
     }
-}
-EOF
-
-  response_mapping_template = <<EOF
-$util.toJson($ctx.result)
-EOF
+  }
 }
 
-# Output the GraphQL API endpoint
-output "appsync_api_endpoint" {
-  value = aws_appsync_graphql_api.my_appsync_api.uris[0]
+# Output the ARN of the Lambda function for reference
+output "lambda_function_arn" {
+  value = aws_lambda_function.my_lambda.arn
+}
+
+# Output the name of the S3 bucket for reference
+output "s3_bucket_name" {
+  value = aws_s3_bucket.my_bucket.id
+}
+
+# Output the name of the DynamoDB table for reference
+output "dynamodb_table_name" {
+  value = aws_dynamodb_table.my_table.name
 }
