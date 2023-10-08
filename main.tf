@@ -149,7 +149,7 @@ resource "aws_lambda_function" "populate_dynamodb" {
 resource "aws_cloudwatch_event_rule" "trigger_lambda" {
   name        = "trigger-lambda-on-demand"
   description = "Trigger Lambda to populate DynamoDB"
-  schedule_expression = "rate(2 minute)"  # Trigger immediately and then every minute
+  schedule_expression = "cron(0/1 * * * ? *)"  # Trigger immediately and then every minute
 }
 
 # Add a Lambda Permission to allow CloudWatch Events to invoke the Lambda function
