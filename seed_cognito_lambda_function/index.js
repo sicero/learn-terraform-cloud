@@ -1,44 +1,54 @@
 const AWS = require('aws-sdk');
 
+// Configure AWS SDK
 AWS.config.update({
-  region: 'eu-west-2',  // Replace with your AWS region
+  region: 'your-region', // Replace with your AWS region
 });
 
-
-exports.handler = async (event, context) => {
-
+// Create an instance of the Cognito Identity Provider
 const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
 
-const userPoolId = 'your-user-pool-id';  // Replace with your User Pool ID
+// Lambda handler function
+exports.handler = async (event, context) => {
+  try {
+    // Replace these values with your User Pool details
+    const userPoolId = process.env.COGNITO_USER_POOL_ID; // Replace with your User Pool ID
+    const clientId =  process.env.COGNITO_USER_POOL_CLIENT_ID; // Replace with your Client ID
 
-const usersToCreate = [
-  {
-    Username: 'user1@example.com',
-    Password: 'Password123!',
-    UserAttributes: [
-      { Name: 'email', Value: 'user1@example.com' },
-      // Add more user attributes as needed
-    ],
-  },
-  // Add more user objects as needed
-];
+    const usersToCreate = [
+      {
+        Username: 'user1@example.com',
+        TemporaryPassword: 'Password123!',
+        UserAttributes: [
+          { Name: 'email', Value: 'user1@example.com' },
+          // Add more user attributes as needed
+        ],
+      },
+      // Add more user objects as needed
+    ];
 
-  const createUserPromises = usersToCreate.map(user => {
-    return cognitoIdentityServiceProvider.adminCreateUser({
-      UserPoolId: userPoolId,
-      Username: user.Username,
-      TemporaryPassword: user.Password,
-      UserAttributes: user.UserAttributes,
-      MessageAction: 'SUPPRESS',  // Suppress the welcome email
-    }).promise();
-  });
-  
-  Promise.all(createUserPromises)
-    .then(() => {
-      console.log('Users created successfully');
-    })
-    .catch(error => {
-      console.error('Error creating users:', error);
-    });
+    // Create users in the Cognito User Pool
+    for (const user of usersToCreate) {
+      await cognitoIdentityServiceProvider
+        .adminCreateUser({
+          UserPoolId: userPoolId,
+          Username: user.Username,
+          TemporaryPassword: user.TemporaryPassword,
+          UserAttributes: user.UserAttributes,
+          ClientId: clientId,
+        })
+        .promise();
+    }
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'Users created successfully' }),
+    };
+  } catch (error) {
+    console.error('Error creating users:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Error creating users' }),
+    };
+  }
 };
-
