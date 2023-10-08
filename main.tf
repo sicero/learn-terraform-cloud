@@ -198,7 +198,7 @@ resource "aws_lambda_function" "seed_cognito" {
 
   environment {
     variables = {
-      COGNITO_USER_POOL_ID = module.cognito.cognito_user_pool_id # Use the User Pool ID from the module output
+      COGNITO_USER_POOL_ID = aws_cognito_user_pool.my_user_pool.id # Use the User Pool ID from the module output
     }
   }
 }
