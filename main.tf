@@ -170,7 +170,7 @@ resource "aws_cloudwatch_event_target" "lambda_target" {
 
 
 # Output the ARN of the Lambda function for reference
-output "lambda_function_arn" {
+output "seed_cognito_" {
   value = aws_lambda_function.my_lambda.arn
 }
 
@@ -204,7 +204,7 @@ resource "aws_lambda_function" "seed_cognito" {
 }
 
 # Output the ARN of the Lambda function for reference
-output "lambda_function_arn" {
+output "seed_cognito_lambda_function_arn" {
   value = aws_lambda_function.seed_cognito.arn
 }
 
