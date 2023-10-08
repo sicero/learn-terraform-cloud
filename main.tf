@@ -133,7 +133,7 @@ resource "aws_lambda_function" "populate_dynamodb" {
   filename      = "lambda_deployment.zip"
   function_name = "populate-dynamodb-function"
   role          = aws_iam_role.lambda_role.arn
-  handler       = "populate_dynamodb.handler"
+  handler       = "index.handler"
   runtime       = "nodejs14.x"  # Use an appropriate Python runtime
 
   source_code_hash = filebase64sha256("lambda_deployment.zip")
