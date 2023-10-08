@@ -1,4 +1,6 @@
 const AWS = require('aws-sdk');
+const { faker } = require('@faker-js/faker');
+
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = async (event, context) => {
@@ -8,8 +10,13 @@ exports.handler = async (event, context) => {
   const itemsToInsert = [];
   for (let i = 1; i <= 10; i++) { // Insert 10 items as an example
     const item = {
-      MyPartitionKey: i.toString(),
-      Name: generateRandomString(10), // Generate a random string of length 10
+        MyPartitionKey: i.toString(),
+        Username: faker.internet.userName(),
+        Email: faker.internet.email(),
+        Avatar: faker.image.avatar(),
+        Password: faker.internet.password(),
+        Birthdate: faker.date.birthdate(),
+        RegisteredAt: faker.date.past(),
       // Add more attributes as needed
     };
     itemsToInsert.push(item);
