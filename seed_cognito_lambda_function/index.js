@@ -35,7 +35,6 @@ exports.handler = async (event, context) => {
           Username: user.Username,
           TemporaryPassword: user.TemporaryPassword,
           UserAttributes: user.UserAttributes,
-          ClientId: clientId,
         })
         .promise();
     }
