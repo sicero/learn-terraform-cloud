@@ -15,8 +15,8 @@ exports.handler = async (event, context) => {
         Email: faker.internet.email(),
         Avatar: faker.image.avatar(),
         Password: faker.internet.password(),
-        Birthdate: faker.date.birthdate(),
-        RegisteredAt: faker.date.past(),
+        Birthdate: faker.date.birthdate().toISOString() ,
+        RegisteredAt: faker.date.past().toISOString() ,
       // Add more attributes as needed
     };
     itemsToInsert.push(item);
@@ -46,12 +46,3 @@ exports.handler = async (event, context) => {
   }
 };
 
-// Helper function to generate a random string of specified length
-function generateRandomString(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-}
