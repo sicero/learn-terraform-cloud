@@ -128,7 +128,45 @@ resource "aws_lambda_function" "my_lambda" {
       key2 = "value2",
     }
   }
+}# Create an AWS Lambda function
+resource "aws_lambda_function" "populate_dynamodb" {
+  filename      = "lambda_deployment.zip"
+  function_name = "populate-dynamodb-function"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "populate_dynamodb.handler"
+  runtime       = "python3.8"  # Use an appropriate Python runtime
+
+  source_code_hash = filebase64sha256("lambda_deployment.zip")
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.my_table.name
+    }
+  }
 }
+
+# Create a CloudWatch Events Rule to trigger the Lambda function immediately
+resource "aws_cloudwatch_event_rule" "trigger_lambda" {
+  name        = "trigger-lambda-on-demand"
+  description = "Trigger Lambda to populate DynamoDB"
+  schedule_expression = "rate(2 minute)"  # Trigger immediately and then every minute
+}
+
+# Add a Lambda Permission to allow CloudWatch Events to invoke the Lambda function
+resource "aws_lambda_permission" "allow_trigger_lambda" {
+  statement_id  = "AllowExecutionFromCloudWatchEvents"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.populate_dynamodb.function_name
+  principal     = "events.amazonaws.com"
+}
+
+# Associate the CloudWatch Events Rule with the Lambda function
+resource "aws_cloudwatch_event_target" "lambda_target" {
+  rule      = aws_cloudwatch_event_rule.trigger_lambda.name
+  target_id = "trigger-lambda"
+  arn       = aws_lambda_function.populate_dynamodb.arn
+}
+
 
 # Output the ARN of the Lambda function for reference
 output "lambda_function_arn" {
@@ -144,3 +182,7 @@ output "s3_bucket_name" {
 output "dynamodb_table_name" {
   value = aws_dynamodb_table.my_table.name
 }
+
+
+
+
