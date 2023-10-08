@@ -29,3 +29,4 @@ override.tf.json
 # example: *tfplan*
 
 lambda_deployment/node_modules
+seed_cognito_lambda_function/node_modules
