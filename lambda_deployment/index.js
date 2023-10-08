@@ -8,7 +8,7 @@ exports.handler = async (event, context) => {
   const itemsToInsert = [];
   for (let i = 1; i <= 10; i++) { // Insert 10 items as an example
     const item = {
-      MyPartitionKey: i,
+      MyPartitionKey: i.toString(),
       Name: generateRandomString(10), // Generate a random string of length 10
       // Add more attributes as needed
     };
