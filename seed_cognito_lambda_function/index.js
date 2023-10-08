@@ -4,6 +4,9 @@ AWS.config.update({
   region: 'eu-west-2',  // Replace with your AWS region
 });
 
+
+exports.handler = async (event, context) => {
+
 const cognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
 
 const userPoolId = 'your-user-pool-id';  // Replace with your User Pool ID
@@ -20,20 +23,22 @@ const usersToCreate = [
   // Add more user objects as needed
 ];
 
-const createUserPromises = usersToCreate.map(user => {
-  return cognitoIdentityServiceProvider.adminCreateUser({
-    UserPoolId: userPoolId,
-    Username: user.Username,
-    TemporaryPassword: user.Password,
-    UserAttributes: user.UserAttributes,
-    MessageAction: 'SUPPRESS',  // Suppress the welcome email
-  }).promise();
-});
-
-Promise.all(createUserPromises)
-  .then(() => {
-    console.log('Users created successfully');
-  })
-  .catch(error => {
-    console.error('Error creating users:', error);
+  const createUserPromises = usersToCreate.map(user => {
+    return cognitoIdentityServiceProvider.adminCreateUser({
+      UserPoolId: userPoolId,
+      Username: user.Username,
+      TemporaryPassword: user.Password,
+      UserAttributes: user.UserAttributes,
+      MessageAction: 'SUPPRESS',  // Suppress the welcome email
+    }).promise();
   });
+  
+  Promise.all(createUserPromises)
+    .then(() => {
+      console.log('Users created successfully');
+    })
+    .catch(error => {
+      console.error('Error creating users:', error);
+    });
+};
+
