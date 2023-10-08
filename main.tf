@@ -186,4 +186,47 @@ output "dynamodb_table_name" {
 
 
 
+# Create the Lambda function
+resource "aws_lambda_function" "seed_cognito" {
+  filename      = "seed_cognito_lambda_function.zip" # Path to your Lambda deployment package
+  function_name = "seed-cognito-function"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "index.handler"
+  runtime       = "nodejs14.x" # Change to your desired runtime
 
+  source_code_hash = filebase64sha256("lambda_function.zip")
+
+  environment {
+    variables = {
+      COGNITO_USER_POOL_ID = module.cognito.cognito_user_pool_id # Use the User Pool ID from the module output
+    }
+  }
+}
+
+# Output the ARN of the Lambda function for reference
+output "lambda_function_arn" {
+  value = aws_lambda_function.seed_cognito.arn
+}
+
+# Create a Cognito User Pool
+resource "aws_cognito_user_pool" "my_user_pool" {
+  name = "my-user-pool"
+  # Configure other Cognito User Pool settings as needed
+}
+
+# Create a Cognito User Pool Client
+resource "aws_cognito_user_pool_client" "my_user_pool_client" {
+  name             = "my-user-pool-client"
+  user_pool_id     = aws_cognito_user_pool.my_user_pool.id
+  generate_secret  = false
+  # Configure other Cognito User Pool Client settings as needed
+}
+
+# Output the User Pool ID and Client ID for reference
+output "cognito_user_pool_id" {
+  value = aws_cognito_user_pool.my_user_pool.id
+}
+
+output "cognito_user_pool_client_id" {
+  value = aws_cognito_user_pool_client.my_user_pool_client.client_id
+}
