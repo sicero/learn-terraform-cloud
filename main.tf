@@ -239,3 +239,86 @@ output "user_pool_client_id" {
   description = "ID of the Cognito User Pool Client"
   value       = aws_cognito_user_pool_client.my_user_pool_client.id
 }
+
+
+# Create an AWS AppSync API
+resource "aws_appsync_graphql_api" "my_appsync_api" {
+  name          = "MyAppSyncAPI"
+  authentication_type = "API_KEY"  # You can use other authentication types if needed
+
+  schema = <<EOF
+    type Query {
+      getItem(id: ID!): MyItemType
+      listItems: [MyItemType]
+    }
+
+    type Mutation {
+      createItem(item: MyItemInput!): MyItemType
+      updateItem(id: ID!, item: MyItemInput!): MyItemType
+      deleteItem(id: ID!): MyItemType
+    }
+
+    input MyItemInput {
+      # Define your input fields here
+    }
+
+    type MyItemType {
+      # Define your output fields here
+    }
+  EOF
+}
+
+# Create an AWS AppSync data source for DynamoDB
+resource "aws_appsync_datasource" "my_dynamodb_datasource" {
+  api_id          = aws_appsync_graphql_api.my_appsync_api.id
+  name            = "MyDynamoDBDataSource"
+  type            = "AMAZON_DYNAMODB"
+  dynamodb_config = {
+    table_name = aws_dynamodb_table.my_table.name
+    region = "eu-west-2" 
+  }
+}
+
+# Create AWS AppSync resolvers
+resource "aws_appsync_resolver" "get_item_resolver" {
+  api_id        = aws_appsync_graphql_api.my_appsync_api.id
+  type_name     = "Query"
+  field_name    = "getItem"
+  data_source   = aws_appsync_datasource.my_dynamodb_datasource.name
+  request_template = <<EOF
+    {
+        "version" : "2018-05-29",
+        "operation" : "GetItem",
+        "key": {
+            "id": $util.dynamodb.toDynamoDBJson($ctx.args.id)
+        }
+    }
+  EOF
+  response_template = <<EOF
+    #set($response = {})
+    #set($item = $ctx.result)
+    #if($item)
+      #set($response["id"] = $item.id)  # Assuming "id" is the attribute name in your DynamoDB table
+      #set($response["name"] = $item.name)  # Replace with the actual attribute names you want to include
+      #set($response["description"] = $item.description)
+      #set($response["otherAttribute"] = $item.otherAttribute)
+    #else
+      #set($response["id"] = $ctx.args.id)  # If the item is not found, include the requested ID in the response
+      #set($response["error"] = "Item not found")  # You can include an error message
+    #end
+
+    $util.toJson($response)
+  EOF
+}
+
+# Create other resolvers for your GraphQL operations (listItems, createItem, updateItem, deleteItem)
+
+# Output the AppSync API ID for reference
+output "appsync_api_id" {
+  value = aws_appsync_graphql_api.my_appsync_api.id
+}
+
+# Output the AppSync API key (or other authentication details) for reference
+output "appsync_api_key" {
+  value = aws_appsync_graphql_api.my_appsync_api.api_key
+}
