@@ -288,6 +288,17 @@ resource "aws_appsync_datasource_association" "my_dynamodb_association" {
 
 # Create other resolvers for your GraphQL operations (listItems, createItem, updateItem, deleteItem)
 
+# Create an AWS AppSync API key
+resource "aws_appsync_api_key" "my_appsync_api_key" {
+  api_id = aws_appsync_graphql_api.my_appsync_api.id
+}
+
+# Output the AppSync API key
+output "appsync_api_key" {
+  value = aws_appsync_api_key.my_appsync_api_key.api_key
+}
+
+
 # Output the AppSync API ID for reference
 output "appsync_api_id" {
   value = aws_appsync_graphql_api.my_appsync_api.id
