@@ -266,55 +266,24 @@ resource "aws_appsync_graphql_api" "my_appsync_api" {
       # Define your output fields here
     }
   EOF
-
-  data_source {
-    name            = "MyDynamoDBDataSource"
-    type            = "AMAZON_DYNAMODB"
-    service_role_arn = aws_iam_role.appsync_service_role.arn
-    dynamodb_config = {
-      table_name = aws_dynamodb_table.my_table.name
-      # You can specify region and other configurations here
-    }
-  }
 }
 
 # Create an AWS AppSync data source for DynamoDB
 resource "aws_appsync_datasource" "my_dynamodb_datasource" {
-  api_id          = aws_appsync_graphql_api.my_appsync_api.id
-  name            = "MyDynamoDBDataSource"
-  type            = "AMAZON_DYNAMODB"
+  api_id = aws_appsync_graphql_api.my_appsync_api.id
+  name   = "MyDynamoDBDataSource"
+  type   = "AMAZON_DYNAMODB"
+
+  dynamodb_config {
+    table_name = aws_dynamodb_table.my_table.name
+    # You can specify region and other configurations here
+  }
 }
 
-# Create AWS AppSync resolvers
-resource "aws_appsync_resolver" "get_item_resolver" {
+# Associate the data source with the AWS AppSync API
+resource "aws_appsync_datasource_association" "my_dynamodb_association" {
   api_id        = aws_appsync_graphql_api.my_appsync_api.id
-  type_name     = "Query"
-  field_name    = "getItem"
   data_source   = aws_appsync_datasource.my_dynamodb_datasource.name
-  request_template = <<EOF
-    {
-        "version" : "2018-05-29",
-        "operation" : "GetItem",
-        "key": {
-            "id": $util.dynamodb.toDynamoDBJson($ctx.args.id)
-        }
-    }
-  EOF
-  response_template = <<EOF
-    #set($response = {})
-    #set($item = $ctx.result)
-    #if($item)
-      #set($response["id"] = $item.id)  # Assuming "id" is the attribute name in your DynamoDB table
-      #set($response["name"] = $item.name)  # Replace with the actual attribute names you want to include
-      #set($response["description"] = $item.description)
-      #set($response["otherAttribute"] = $item.otherAttribute)
-    #else
-      #set($response["id"] = $ctx.args.id)  # If the item is not found, include the requested ID in the response
-      #set($response["error"] = "Item not found")  # You can include an error message
-    #end
-
-    $util.toJson($response)
-  EOF
 }
 
 # Create other resolvers for your GraphQL operations (listItems, createItem, updateItem, deleteItem)
