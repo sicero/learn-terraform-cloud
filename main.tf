@@ -266,6 +266,16 @@ resource "aws_appsync_graphql_api" "my_appsync_api" {
       # Define your output fields here
     }
   EOF
+
+  data_source {
+    name            = "MyDynamoDBDataSource"
+    type            = "AMAZON_DYNAMODB"
+    service_role_arn = aws_iam_role.appsync_service_role.arn
+    dynamodb_config = {
+      table_name = aws_dynamodb_table.my_table.name
+      # You can specify region and other configurations here
+    }
+  }
 }
 
 # Create an AWS AppSync data source for DynamoDB
@@ -273,10 +283,6 @@ resource "aws_appsync_datasource" "my_dynamodb_datasource" {
   api_id          = aws_appsync_graphql_api.my_appsync_api.id
   name            = "MyDynamoDBDataSource"
   type            = "AMAZON_DYNAMODB"
-  dynamodb_config = {
-    table_name = aws_dynamodb_table.my_table.name
-    region = "eu-west-2" 
-  }
 }
 
 # Create AWS AppSync resolvers
