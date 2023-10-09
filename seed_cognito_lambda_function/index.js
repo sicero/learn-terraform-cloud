@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 
 // Configure AWS SDK
 AWS.config.update({
-  region: 'your-region', // Replace with your AWS region
+  region: 'eu-west-2', // Replace with your AWS region
 });
 
 // Create an instance of the Cognito Identity Provider
