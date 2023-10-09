@@ -49,6 +49,13 @@ resource "aws_iam_policy" "lambda_policy" {
         Effect   = "Allow",
         Resource = "*",
       },
+      {
+        Action   = [
+          "cognito-idp:AdminCreateUser",
+        ],
+        Effect   = "Allow",
+        Resource = "*",
+      },
     ],
   })
 }
