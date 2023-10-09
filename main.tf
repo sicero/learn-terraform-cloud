@@ -298,7 +298,8 @@ output "appsync_api_id" {
   value = aws_appsync_graphql_api.my_appsync_api.id
 }
 
-# Output the AppSync API key (or other authentication details) for reference
+
+# Output the AppSync API key value
 output "appsync_api_key" {
-  value = aws_appsync_graphql_api.my_appsync_api.api_key
+  value = aws_appsync_api_key.my_appsync_api_key.key
 }
