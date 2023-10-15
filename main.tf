@@ -303,5 +303,6 @@ output "appsync_api_id" {
 # Output the AppSync API key value
 output "appsync_api_key" {
   value = aws_appsync_api_key.my_appsync_api_key.key
+  sensitive = true
 }
 
