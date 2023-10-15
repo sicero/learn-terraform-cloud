@@ -83,12 +83,12 @@ resource "aws_s3_bucket" "my_bucket" {
 resource "aws_dynamodb_table" "my_table" {
   name           = "MyTable"
   billing_mode   = "PAY_PER_REQUEST" # Change to your desired billing mode
-  hash_key       = "MyPartitionKey"  # Change to your desired partition key attribute name
+  hash_key       = "ID"  # Change to your desired partition key attribute name
   read_capacity  = 5                  # Adjust read capacity units as needed
   write_capacity = 5                  # Adjust write capacity units as needed
 
   attribute {
-    name = "MyPartitionKey"          # Change to your desired partition key attribute name
+    name = "ID"          # Change to your desired partition key attribute name
     type = "S"                       # Change to the appropriate data type
   }
 
