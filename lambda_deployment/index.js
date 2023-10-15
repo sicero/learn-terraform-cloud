@@ -10,7 +10,7 @@ exports.handler = async (event, context) => {
   const itemsToInsert = [];
   for (let i = 1; i <= 10; i++) { // Insert 10 items as an example
     const item = {
-        MyPartitionKey: i.toString(),
+        ID: i.toString(),
         Username: faker.internet.userName(),
         Email: faker.internet.email(),
         Avatar: faker.image.avatar(),
