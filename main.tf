@@ -66,6 +66,13 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
   role       = aws_iam_role.lambda_role.name
 }
 
+resource "aws_iam_policy_attachment" "detach_policy" {
+  name        = "LambdaRoleDetach"
+  policy_arn = aws_iam_policy.lambda_policy.arn
+  roles      = [aws_iam_role.lambda_role.name]
+}
+
+
 # Create an S3 bucket
 resource "aws_s3_bucket" "my_bucket" {
   bucket = "sicero-landing-zone-1"
@@ -117,13 +124,6 @@ resource "aws_iam_policy_attachment" "dynamodb_policy_attachment" {
   roles      = [aws_iam_role.lambda_role.name]  # Attach to your Lambda role
   # Alternatively, you can use "users" instead of "roles" if attaching to an IAM user.
 }
-
-resource "aws_iam_policy_attachment" "detach_policy" {
-  name        = "LambdaRoleDetach"
-  policy_arn = "arn:aws:iam::AWS_ACCOUNT_ID:policy/POLICY_NAME"
-  roles      = [aws_iam_role.lambda_role.name]
-}
-
 
 # Create the Lambda function
 resource "aws_lambda_function" "my_lambda" {
