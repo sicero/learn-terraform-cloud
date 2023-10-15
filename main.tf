@@ -265,6 +265,13 @@ resource "aws_appsync_graphql_api" "my_appsync_api" {
 
     input MyItemInput {
       # Define your input fields here
+      Username: String
+      Email: String
+      Avatar: String
+      Password: String
+      Birthdate: String
+      RegisteredAt: String
+      # Add other fields as needed
     }
 
     type MyItemType {
