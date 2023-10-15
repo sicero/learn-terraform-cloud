@@ -118,6 +118,11 @@ resource "aws_iam_policy_attachment" "dynamodb_policy_attachment" {
   # Alternatively, you can use "users" instead of "roles" if attaching to an IAM user.
 }
 
+resource "aws_iam_policy_attachment" "detach_policy" {
+  name        = "LambdaRoleDetach"
+  policy_arn = "arn:aws:iam::AWS_ACCOUNT_ID:policy/POLICY_NAME"
+  roles      = [aws_iam_role.lambda_role.name]
+}
 
 
 # Create the Lambda function
@@ -239,3 +244,65 @@ output "user_pool_client_id" {
   description = "ID of the Cognito User Pool Client"
   value       = aws_cognito_user_pool_client.my_user_pool_client.id
 }
+
+
+# Create an AWS AppSync API
+resource "aws_appsync_graphql_api" "my_appsync_api" {
+  name          = "MyAppSyncAPI"
+  authentication_type = "API_KEY"  # You can use other authentication types if needed
+
+  schema = <<EOF
+    type Query {
+      getItem(id: ID!): MyItemType
+      listItems: [MyItemType]
+    }
+
+    type Mutation {
+      createItem(item: MyItemInput!): MyItemType
+      updateItem(id: ID!, item: MyItemInput!): MyItemType
+      deleteItem(id: ID!): MyItemType
+    }
+
+    input MyItemInput {
+      # Define your input fields here
+    }
+
+    type MyItemType {
+      # Define your output fields here
+    }
+  EOF
+}
+
+# Create an AWS AppSync data source for DynamoDB
+resource "aws_appsync_datasource" "my_dynamodb_datasource" {
+  api_id = aws_appsync_graphql_api.my_appsync_api.id
+  name   = "MyDynamoDBDataSource"
+  type   = "AMAZON_DYNAMODB"
+
+  dynamodb_config {
+    table_name = aws_dynamodb_table.my_table.name
+    # You can specify region and other configurations here
+  }
+}
+
+
+
+# Create other resolvers for your GraphQL operations (listItems, createItem, updateItem, deleteItem)
+
+# Create an AWS AppSync API key
+resource "aws_appsync_api_key" "my_appsync_api_key" {
+  api_id = aws_appsync_graphql_api.my_appsync_api.id
+}
+
+# Output the AppSync API ID for reference
+output "appsync_api_id" {
+  value = aws_appsync_graphql_api.my_appsync_api.id
+}
+
+
+# Output the AppSync API key value
+output "appsync_api_key" {
+  value = aws_appsync_api_key.my_appsync_api_key.key
+  sensitive = true
+}
+
