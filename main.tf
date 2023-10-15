@@ -119,6 +119,7 @@ resource "aws_iam_policy_attachment" "dynamodb_policy_attachment" {
 }
 
 resource "aws_iam_policy_attachment" "detach_policy" {
+  name        = "LambdaRoleDetach"
   policy_arn = "arn:aws:iam::AWS_ACCOUNT_ID:policy/POLICY_NAME"
   roles      = [aws_iam_role.lambda_role.name]
 }
@@ -284,11 +285,7 @@ resource "aws_appsync_datasource" "my_dynamodb_datasource" {
   }
 }
 
-# Associate the data source with the AWS AppSync API
-resource "aws_appsync_datasource_association" "my_dynamodb_association" {
-  api_id        = aws_appsync_graphql_api.my_appsync_api.id
-  data_source   = aws_appsync_datasource.my_dynamodb_datasource.name
-}
+
 
 # Create other resolvers for your GraphQL operations (listItems, createItem, updateItem, deleteItem)
 
