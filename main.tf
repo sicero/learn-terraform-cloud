@@ -286,10 +286,27 @@ resource "aws_appsync_graphql_api" "my_appsync_api" {
   EOF
 }
 
+resource "aws_iam_role" "appsync_data_source_role" {
+  name = "AppSyncDataSourceRole"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "appsync.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
 # Create an AWS AppSync data source for DynamoDB
 resource "aws_appsync_datasource" "my_dynamodb_datasource" {
   api_id = aws_appsync_graphql_api.my_appsync_api.id
   name   = "MyDynamoDBDataSource"
+  service_role_arn = aws_iam_role.appsync_data_source_role.arn
   type   = "AMAZON_DYNAMODB"
 
   dynamodb_config {
