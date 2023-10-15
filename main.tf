@@ -118,6 +118,10 @@ resource "aws_iam_policy_attachment" "dynamodb_policy_attachment" {
   # Alternatively, you can use "users" instead of "roles" if attaching to an IAM user.
 }
 
+resource "aws_iam_policy_attachment" "detach_policy" {
+  policy_arn = "arn:aws:iam::AWS_ACCOUNT_ID:policy/POLICY_NAME"
+  roles      = [aws_iam_role.lambda_role.name]
+}
 
 
 # Create the Lambda function
@@ -303,3 +307,4 @@ output "appsync_api_id" {
 output "appsync_api_key" {
   value = aws_appsync_api_key.my_appsync_api_key.key
 }
+
