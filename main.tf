@@ -268,7 +268,14 @@ resource "aws_appsync_graphql_api" "my_appsync_api" {
     }
 
     type MyItemType {
-      # Define your output fields here
+      MyPartitionKey: String
+      Username: String
+      Email: String
+      Avatar: String
+      Password: String
+      Birthdate: String
+      RegisteredAt: String
+      # Add other fields as needed
     }
   EOF
 }
